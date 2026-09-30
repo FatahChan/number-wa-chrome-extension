@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhatsApp Number Link</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>WhatsApp Number Link</h1>
+    <p class="hint">
+      Numbers with <strong>+</strong> use their own country code. Others get your default prefix below.
+    </p>
+
+    <label for="enabled">Enable on pages</label>
+    <input type="checkbox" id="enabled" checked />
+
+    <label for="prefix">Default country prefix</label>
+    <select id="prefix"></select>
+
+    <label for="custom-prefix">Or custom prefix</label>
+    <input type="text" id="custom-prefix" placeholder="+966" />
+
+    <p class="preview" id="preview"></p>
+
+    <button type="button" id="save">Save</button>
+    <p class="status" id="status"></p>
+
+    <script src="phone.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
