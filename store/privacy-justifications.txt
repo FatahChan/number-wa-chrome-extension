@@ -1,0 +1,35 @@
+=== SINGLE PURPOSE DESCRIPTION (Privacy practices tab) ===
+
+Detect phone numbers on web pages and add one-click links that open them in WhatsApp.
+
+
+=== HOST PERMISSION JUSTIFICATION (Privacy practices tab) ===
+
+This extension does NOT request broad host permissions by default. It uses activeTab so the user can scan the current page on demand via the extension popup ("Scan this page").
+
+Optional host permission (<all_urls>) is requested only when the user explicitly opts in to "Auto-scan all pages" in the popup. If granted, the extension registers a content script to scan pages the user visits and insert a small WhatsApp link next to phone numbers. It only reads visible DOM text, injects local UI elements, does not collect page content, and does not transmit data to any server. Users who decline optional access can still use the extension on any tab via the manual scan button.
+
+
+=== STORAGE PERMISSION JUSTIFICATION (Privacy practices tab) ===
+
+The storage permission is used solely to save the user's preferences locally via chrome.storage.sync: (1) default country prefix for local phone numbers without a + prefix, and (2) whether the extension is enabled. No other data is stored.
+
+
+=== REMOTE CODE JUSTIFICATION (Privacy practices tab) ===
+
+This extension does not use remote code. All JavaScript, CSS, and assets are bundled locally in the extension package. No scripts are loaded from external URLs, no eval() or dynamic code execution from remote sources is used, and no code is fetched at runtime.
+
+
+=== DATA USAGE CERTIFICATION (Privacy practices tab) ===
+
+When certifying compliance with Developer Program Policies, confirm:
+- The extension does not sell or transfer user data to third parties.
+- The extension does not use data for purposes unrelated to its single purpose.
+- The extension does not collect personally identifiable information beyond what is needed for its stated functionality (it does not collect PII at all — only stores user preferences locally).
+
+
+=== SETTINGS PAGE (you must do manually) ===
+
+1. Go to Chrome Web Store Developer Dashboard → Settings
+2. Enter your publisher contact email
+3. Click the verification link sent to that email before publishing

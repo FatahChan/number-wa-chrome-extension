@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WhatsApp Number Link — Demo</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f8f9fa;
+        color: #1a1a1a;
+      }
+      .bar {
+        background: #1a1d21;
+        color: #fff;
+        padding: 14px 24px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .page {
+        max-width: 720px;
+        margin: 48px auto;
+        padding: 40px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      }
+      h1 { margin: 0 0 8px; font-size: 22px; }
+      .sub { color: #666; margin-bottom: 28px; font-size: 14px; }
+      .card {
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+      }
+      .card h2 { margin: 0 0 12px; font-size: 15px; }
+      .row { margin: 10px 0; font-size: 15px; line-height: 1.6; }
+      .label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+      .wa-phone-wrap { white-space: nowrap; }
+      .wa-link {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 4px;
+        padding: 0 5px;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.4;
+        text-decoration: none;
+        color: #fff;
+        background: #25d366;
+        border-radius: 3px;
+        vertical-align: middle;
+      }
+      .badge {
+        display: inline-block;
+        margin-top: 24px;
+        padding: 8px 14px;
+        background: #e8f5e9;
+        color: #2e7d32;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">WhatsApp Number Link</div>
+    <div class="page">
+      <h1>Contact directory</h1>
+      <p class="sub">Phone numbers get a one-click WhatsApp button automatically.</p>
+
+      <div class="card">
+        <h2>Sales team</h2>
+        <div class="row"><span class="label">US office</span><br>+1 (415) 555-0132 <a class="wa-link" href="#"><span>WA</span></a></div>
+        <div class="row"><span class="label">UK office</span><br>+44 20 7946 0958 <a class="wa-link" href="#"><span>WA</span></a></div>
+      </div>
+
+      <div class="card">
+        <h2>Regional contacts</h2>
+        <div class="row"><span class="label">Riyadh</span><br>050 123 4567 <a class="wa-link" href="#"><span>WA</span></a></div>
+        <div class="row"><span class="label">Dubai</span><br>+971 50 987 6543 <a class="wa-link" href="#"><span>WA</span></a></div>
+      </div>
+
+      <p class="badge">Click WA → opens wa.me in a new tab</p>
+    </div>
+  </body>
+</html>

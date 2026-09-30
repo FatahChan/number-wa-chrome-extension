@@ -8,11 +8,21 @@
   </head>
   <body>
     <h1>WhatsApp Number Link</h1>
+
+    <button type="button" id="scan-page" class="primary">Scan this page</button>
+    <p class="hint">Works on the current tab without broad site access.</p>
+
+    <hr />
+
+    <label class="check-row">
+      <input type="checkbox" id="auto-scan" />
+      Auto-scan all pages (optional)
+    </label>
     <p class="hint">
-      Numbers with <strong>+</strong> use their own country code. Others get your default prefix below.
+      Opt in to scan every page automatically. You will be asked to grant site access.
     </p>
 
-    <label for="enabled">Enable on pages</label>
+    <label for="enabled">Extension enabled</label>
     <input type="checkbox" id="enabled" checked />
 
     <label for="prefix">Default country prefix</label>
@@ -21,9 +31,13 @@
     <label for="custom-prefix">Or custom prefix</label>
     <input type="text" id="custom-prefix" placeholder="+966" />
 
+    <p class="hint">
+      Numbers with <strong>+</strong> use their own country code. Others use your default prefix.
+    </p>
+
     <p class="preview" id="preview"></p>
 
-    <button type="button" id="save">Save</button>
+    <button type="button" id="save">Save settings</button>
     <p class="status" id="status"></p>
 
     <script src="phone.js"></script>

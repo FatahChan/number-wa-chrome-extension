@@ -1,3 +1,9 @@
+if (window.__WA_SCANNER_LOADED) {
+  // manual re-scan via popup on an already-loaded page
+  if (typeof window.__WA_RESCAN === "function") window.__WA_RESCAN();
+} else {
+  window.__WA_SCANNER_LOADED = true;
+
 (function () {
   const SKIP_TAGS = new Set([
     "SCRIPT",
@@ -250,6 +256,7 @@
     hookSpaNavigation();
   }
 
+  window.__WA_RESCAN = rescanAll;
   loadSettings().then(init);
 
   chrome.storage.onChanged.addListener((changes, area) => {
@@ -266,3 +273,4 @@
     }
   });
 })();
+}

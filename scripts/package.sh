@@ -7,6 +7,7 @@ rm -f "$OUT"
 cd "$ROOT"
 zip -r "$OUT" \
   manifest.json \
+  background.js \
   content.js content.css \
   phone.js \
   popup.html popup.js popup.css \
