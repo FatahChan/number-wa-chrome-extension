@@ -9,7 +9,6 @@
     "OPTION",
     "CODE",
     "PRE",
-    "A",
     "SVG",
   ]);
 
@@ -33,10 +32,51 @@
     let el = parent;
     while (el) {
       if (SKIP_TAGS.has(el.tagName)) return true;
+      if (el.tagName === "A") {
+        const href = el.getAttribute("href") || "";
+        if (el.classList.contains("wa-link") || href.startsWith("https://wa.me/")) return true;
+        // tel: links handled separately; other links skipped to avoid nesting
+        return true;
+      }
       if (el.isContentEditable) return true;
       el = el.parentElement;
     }
     return false;
+  }
+
+  function createWaLink(raw, waDigits) {
+    const link = document.createElement("a");
+    link.href = buildWaMeUrl(waDigits);
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.className = "wa-link";
+    link.title = hasInternationalPrefix(raw)
+      ? `Message ${raw.trim()} on WhatsApp`
+      : `Message on WhatsApp (using ${defaultPrefix})`;
+    link.setAttribute("aria-label", link.title);
+
+    const icon = document.createElement("span");
+    icon.className = "wa-link-icon";
+    icon.textContent = "WA";
+    link.appendChild(icon);
+    return link;
+  }
+
+  function processTelLinks(root) {
+    if (!root.querySelectorAll) return;
+
+    root.querySelectorAll('a[href^="tel:"]').forEach((anchor) => {
+      if (anchor.dataset.waProcessed || anchor.nextElementSibling?.classList.contains("wa-tel-sibling")) {
+        return;
+      }
+
+      const tel = decodeURIComponent(anchor.getAttribute("href").replace(/^tel:/i, "").trim());
+      const waDigits = toWhatsAppNumber(tel, defaultPrefix);
+      const link = createWaLink(tel, waDigits);
+      link.classList.add("wa-tel-sibling");
+      anchor.insertAdjacentElement("afterend", link);
+      anchor.dataset.waProcessed = "1";
+    });
   }
 
   function processTextNode(node) {
@@ -57,26 +97,8 @@
 
       const wrap = document.createElement("span");
       wrap.className = "wa-phone-wrap";
-
       wrap.appendChild(document.createTextNode(raw));
-
-      const waDigits = toWhatsAppNumber(raw, defaultPrefix);
-      const link = document.createElement("a");
-      link.href = buildWaMeUrl(waDigits);
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.className = "wa-link";
-      link.title = hasInternationalPrefix(raw)
-        ? `Message ${raw.trim()} on WhatsApp`
-        : `Message on WhatsApp (using ${defaultPrefix})`;
-      link.setAttribute("aria-label", link.title);
-
-      const icon = document.createElement("span");
-      icon.className = "wa-link-icon";
-      icon.textContent = "WA";
-      link.appendChild(icon);
-
-      wrap.appendChild(link);
+      wrap.appendChild(createWaLink(raw, toWhatsAppNumber(raw, defaultPrefix)));
       frag.appendChild(wrap);
 
       lastIndex = index + raw.length;
@@ -89,34 +111,56 @@
     parent.replaceChild(frag, node);
   }
 
+  function visitRoots(root, fn) {
+    fn(root);
+    if (!root.querySelectorAll) return;
+    root.querySelectorAll("*").forEach((el) => {
+      if (el.shadowRoot) visitRoots(el.shadowRoot, fn);
+    });
+  }
+
+  function collectTextNodes(root) {
+    const nodes = [];
+    visitRoots(root, (subRoot) => {
+      if (!subRoot.nodeType) return;
+      const walker = document.createTreeWalker(subRoot, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+          if (shouldSkipNode(node)) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+    });
+    return nodes;
+  }
+
   function walkAndProcess(root) {
     if (!enabled) return;
 
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
-        if (shouldSkipNode(node)) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      },
+    visitRoots(root, (subRoot) => {
+      processTelLinks(subRoot);
     });
 
-    const textNodes = [];
-    while (walker.nextNode()) {
-      textNodes.push(walker.currentNode);
-    }
-
-    for (const node of textNodes) {
+    for (const node of collectTextNodes(root)) {
       processTextNode(node);
     }
   }
 
   function unwrapProcessed(root = document.body) {
-    root.querySelectorAll(".wa-phone-wrap").forEach((wrap) => {
-      let phoneText = "";
-      for (const child of wrap.childNodes) {
-        if (child.nodeType === Node.TEXT_NODE) phoneText += child.textContent;
-      }
-      wrap.replaceWith(document.createTextNode(phoneText));
+    visitRoots(root, (subRoot) => {
+      if (!subRoot.querySelectorAll) return;
+      subRoot.querySelectorAll(".wa-tel-sibling").forEach((el) => el.remove());
+      subRoot.querySelectorAll("a[data-wa-processed]").forEach((el) => {
+        delete el.dataset.waProcessed;
+      });
+      subRoot.querySelectorAll(".wa-phone-wrap").forEach((wrap) => {
+        let phoneText = "";
+        for (const child of wrap.childNodes) {
+          if (child.nodeType === Node.TEXT_NODE) phoneText += child.textContent;
+        }
+        wrap.replaceWith(document.createTextNode(phoneText));
+      });
     });
   }
 
@@ -164,7 +208,6 @@
   }
 
   function hookSpaNavigation() {
-    // ponytail: frameworks often render route content after pushState — second pass catches late DOM
     const onNavigate = () => {
       scheduleScan();
       setTimeout(() => scheduleScan(), 600);
@@ -173,7 +216,6 @@
     window.addEventListener("popstate", onNavigate);
     window.addEventListener("hashchange", onNavigate);
 
-    // ponytail: patch history so client-side route changes trigger a rescan
     const { pushState, replaceState } = history;
     history.pushState = function (...args) {
       const result = pushState.apply(this, args);
@@ -185,6 +227,9 @@
       onNavigate();
       return result;
     };
+
+    // ponytail: Slack-style modals/panels open on click without history changes
+    document.addEventListener("click", onNavigate, true);
   }
 
   function init() {
